@@ -1,0 +1,116 @@
+apply plugin: 'com.android.application'
+
+android {
+    // 编译SDK的版本
+    compileSdkVersion 25
+
+    // buildTools版本
+    buildToolsVersion "25.0.2"
+
+    // 默认的配置
+    defaultConfig {
+        // 应用的包名
+        applicationId "com.cooloongwu.multichannel"
+        minSdkVersion 14
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    //多渠道签名配置
+    signingConfigs {
+
+        defaltConfig {
+            keyAlias 'multichannel'//别名
+            keyPassword 'multichannel'//别名密码
+            storeFile file('D:/Works_Android/MultiChannel/key/multichannel.jks')//签名文件路径
+            storePassword 'multichannel'//签名密码
+        }
+
+    }
+
+    buildTypes {
+        release {
+            // 是否进行代码混淆
+            minifyEnabled false
+
+            // 设置是否删除无用的资源，如果使用同一个签名打包设置为true会造成一个问题，如下所示，如果出错将其注释即可！
+            //Error:A problem was found with the configuration of task ':app:packageHerRelease'. > File 'D:\Works_Android\MultiChannel\app\build\intermediates\res\resources-her-release-stripped.ap_' specified for property 'resourceFile' does not exist.
+            shrinkResources false
+
+            // 混淆文件的位置
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            signingConfig signingConfigs.defaltConfig
+        }
+    }
+
+    //多渠道打包配置，signingConfig可配置不同签名，在AndroidManifest.xml的application标签中配置meta-data即可，如下所示：
+    //<meta-data
+    //android:name="CHANNEL"
+    //android:value="${CHANNEL_VALUE}" />
+
+    productFlavors {
+        day {
+            applicationId = "com.cooloongwu.multichannel.day"
+            manifestPlaceholders = [
+                    CHANNEL_VALUE: "day",
+                    APPLICATIONID: applicationId
+            ]
+            //signingConfig signingConfigs.day
+
+            //应用名
+            resValue "string", "app_name", "天气：白天"
+        }
+
+        night {
+            applicationId = "com.cooloongwu.multichannel.night"
+            manifestPlaceholders = [
+                    CHANNEL_VALUE: "night",
+                    APPLICATIONID: applicationId
+            ]
+            //signingConfig signingConfigs.night
+
+            //应用名
+            resValue "string", "app_name", "天气：夜晚"
+        }
+
+        cold {
+            applicationId = "com.cooloongwu.multichannel.cold"
+            manifestPlaceholders = [
+                    CHANNEL_VALUE: "cold",
+                    APPLICATIONID: applicationId
+            ]
+            //signingConfig signingConfigs.cold
+
+            //应用名
+            resValue "string", "app_name", " 天气：寒冷"
+        }
+    }
+
+    //自定义打包发布apk名字的格式：xxx_multichannel_1.2.1.apk
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (variant.buildType.name == 'release') {
+                def fileName = "${variant.productFlavors[0].name}_multichannel_${defaultConfig.versionName}.apk"
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
+    }
+}
+
+// 依赖项目
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+
+    compile 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:1.1.6'
+}
