@@ -1,4 +1,4 @@
-package com.cooloongwu.multichannel.wxapi;
+package com.cooloongwu.multichannel.night.wxapi;
 
 import android.app.Activity;
 import android.content.Intent;

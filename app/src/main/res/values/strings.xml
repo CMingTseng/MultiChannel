@@ -42,7 +42,6 @@
     <string name="fmt_iap_err" formatted="false">网络连接不可用，请稍候重试</string>
 
     <string name="hello">Hello World, SDKSampleActivity!</string>
-    <string name="app_name">SDKSample</string>
     <string name="app_share">分享</string>
 
     <string name="enter">这是SDK_Sample的入口界面</string>
