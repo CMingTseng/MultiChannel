@@ -1,5 +1,20 @@
 apply plugin: 'com.android.application'
 
+//1、直接使用Git提交次数来定义VersionCode
+//def cmd_code = 'git rev-list HEAD --first-parent --count'
+//def gitVersionCode = cmd_code.execute().text.trim().toInteger()
+
+//2、使用日期和Git提交次数来定义VersionCode和VersionName
+ext.majorCode = 1       //主版本号，手动修改
+ext.minorCode = 0       //次版本号，手动修改
+ext.revisionCode = 1    //修订版本号，手动修改
+//ext.revisionDescriptionCMD = 'git describe --always'
+//ext.tempRevisionDescription = revisionDescriptionCMD.execute().getText().trim()
+//ext.revisionDescription = (tempRevisionDescription == null || (tempRevisionDescription).size() == 0) ? new Date().format("yyMMddhhss") : (tempRevisionDescription).substring((tempRevisionDescription).size() - 6)
+
+ext.compileCodeCMD = 'git rev-list HEAD --count'
+ext.compileCode = compileCodeCMD.execute().getText().trim().toInteger()//编译版本号，自动修改，按照Git提交次数生成
+
 android {
     // 编译SDK的版本
     compileSdkVersion 25
@@ -13,8 +28,8 @@ android {
         applicationId "com.cooloongwu.multichannel"
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode getVersionCode(false)
+        versionName getMyVersionName()
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -116,6 +131,11 @@ android {
 
     //自定义打包发布apk名字的格式：xxx_multichannel_1.2.1.apk
     applicationVariants.all { variant ->
+        if (variant.buildType.name == 'release') {
+            variant.mergedFlavor.versionCode = getVersionCode(true)
+        } else {
+            variant.mergedFlavor.versionCode = getVersionCode(false)
+        }
         variant.outputs.each { output ->
             def outputFile = output.outputFile
             if (variant.buildType.name == 'release') {
@@ -124,6 +144,23 @@ android {
             }
         }
     }
+
+}
+
+def getVersionCode(boolean isRelease) {
+    // 正式环境
+    if (isRelease) {
+        majorCode * 1000000 + minorCode * 10000 + revisionCode + compileCode
+    }
+    // debug环境
+    else {
+        //直接返回一个日期
+        Integer.parseInt(new Date().format("yyMMddhhss"))
+    }
+}
+
+def getMyVersionName() {
+    majorCode + "." + minorCode + "." + revisionCode + "." + compileCode
 }
 
 // 依赖项目

@@ -3,6 +3,7 @@ package com.cooloongwu.multichannel;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
@@ -31,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
                 sendToWeixin();
             }
         });
+
+        TextView text_version = (TextView) findViewById(R.id.text_version);
+        text_version.setText("版本号：" + BuildConfig.VERSION_CODE + "；版本名称：" + BuildConfig.VERSION_NAME);
 
         //Toast.makeText(MainActivity.this, this.getPackageName(), Toast.LENGTH_SHORT).show();
         Toast.makeText(MainActivity.this, BuildConfig.WEXIN_APPID, Toast.LENGTH_SHORT).show();
